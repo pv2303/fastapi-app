@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from enum import Enum
+from pydantic import BaseModel
+
+from typing import Union
 
 app = FastAPI()
 
@@ -8,6 +11,12 @@ class ModelName(str, Enum):
     plm = "plm"
     dl = "dl"
 
+# None indica que aquele atributo é opcional
+class Product(BaseModel):
+    id: int
+    name: Union[str, None] = None
+    price: float
+    quantity: Union[int, None] = None
 
 @app.get("/")
 async def root():
@@ -36,3 +45,10 @@ async def read_model_name(model_name: ModelName):
         return {"model_name": model_name, "message": "It is a linear regression with panel data"}
     else:
         return{"model_name": model_name, "message": "It is a deep learning model. Fancy."}
+    
+
+# O Pydantic define tipagem forte dos dados que você pode ter para uma certa estrutura de dados
+# Com isso você pode criar produtos, sabendo exatamente os tipos importantes e opcionais para execução do programa
+@app.post("/products/")
+async def create_product(product: Product):
+    return product
